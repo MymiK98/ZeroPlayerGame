@@ -18,6 +18,7 @@ public class ObjectFoolItem
     public List<GameObject> pushList;
 }
 
+[DefaultExecutionOrder(-100)]
 public class ObjectPoolManage : MonoSingleton<ObjectPoolManage>
 {
     [SerializeField] private List<LoadObjectInfoStruct> objectList;

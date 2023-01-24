@@ -11,15 +11,17 @@ using UnityEngine;
 //룰 5 : 한턴 한턴 지나면서 갱신이 되며 한번의 동시의 갱신을 해야함
 public class LifeCycle : MonoBehaviour
 {
-    private GameObject zxc;
-    private void Start()
+    private void Awake()
     {
-        zxc = ObjectPoolManage.Instance.PopObject("aaa", null);
-        Invoke("push",5);
+        Message.AddListener<Msg_GroundBatchCell>(msg_GroundBatchCell);
     }
 
-    void push()
+    private void OnDestroy()
     {
-        ObjectPoolManage.Instance.PushObject("aaa", zxc);
+        Message.RemoveListener<Msg_GroundBatchCell>(msg_GroundBatchCell);
+    }
+
+    void msg_GroundBatchCell(Msg_GroundBatchCell data)
+    {
     }
 }
