@@ -48,6 +48,7 @@ public class CameraControl : MonoBehaviour
             return;
 
         #region Camera Control
+
         if (Input.GetKey(KeyCode.W)) Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
         else if (Input.GetKey(KeyCode.A))
             Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
@@ -67,11 +68,13 @@ public class CameraControl : MonoBehaviour
             Camera.main.transform.position = defaultPosition;
             Camera.main.orthographicSize = defaultOrthographicSize;
         }
+
         #endregion
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition),
+            RaycastHit rayHit = new RaycastHit();
+            if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out rayHit,
                     Mathf.Abs(Camera.main.transform.position.z)))
             {
                 Vector3 cameraPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -79,7 +82,15 @@ public class CameraControl : MonoBehaviour
                 selectCell.transform.position = new Vector3(Mathf.FloorToInt(cameraPoint.x) + .5f,
                     Mathf.FloorToInt(cameraPoint.y) + .5f, 0);
                 Message.Send(new Msg_GroundBatchCell(Mathf.FloorToInt(cameraPoint.x), Mathf.FloorToInt(cameraPoint.y),
-                    selectCell));
+                    selectCell, Msg_GroundBatchCell.eGroundTouchState.Add));
+            }
+            else
+            {
+                Message.Send(new Msg_GroundBatchCell(
+                    Mathf.FloorToInt(rayHit.collider.gameObject.transform.position.x - .5f),
+                    Mathf.FloorToInt(rayHit.collider.gameObject.transform.position.y - .5f), null,
+                    Msg_GroundBatchCell.eGroundTouchState.Delete));
+                Destroy(rayHit.collider.gameObject);
             }
         }
     }

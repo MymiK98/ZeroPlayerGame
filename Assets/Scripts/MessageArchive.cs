@@ -6,11 +6,18 @@ public class Msg_GroundBatchCell : Message
     public int cellX;
     public int cellY;
     public GameObject cellObject;
+    public eGroundTouchState touchState;
     
-    public Msg_GroundBatchCell(int cellX,int cellY,GameObject cellObject)
+    public enum eGroundTouchState
+    {
+        Add,Delete
+    } 
+    
+    public Msg_GroundBatchCell(int cellX,int cellY,GameObject cellObject,eGroundTouchState touchState)
     {
         this.cellX = cellX;
         this.cellY = cellY;
         this.cellObject = cellObject;
+        this.touchState = touchState;
     }
 }
