@@ -23,6 +23,7 @@ public class InfinityGrid : MonoBehaviour
         if (Camera.main == null || gridMaterial == null)
             return;
         
+        //카메라에 맞추어 그리드의 크기도 변경
         gridTransform.localScale = new Vector2(Camera.main.aspect*Camera.main.orthographicSize * 2+2,Camera.main.orthographicSize * 2+2);
         gridMaterial.mainTextureScale = new Vector2(Camera.main.aspect*Camera.main.orthographicSize * 2+2,Camera.main.orthographicSize * 2+2);
     }
@@ -32,8 +33,9 @@ public class InfinityGrid : MonoBehaviour
         if (Camera.main == null || gridMaterial == null)
             return;
         
+        //그리드에 셀이 생성됬는데 배율을 바꾸거나 움직이면그리드와 셀이 안맞으 그유격을 맞춤
         float temp = Camera.main.orthographicSize % (float)1;
-        temp = temp >= 0.5f ? temp - 0.5f : Mathf.Abs(0.5f - temp);
-        gridTransform.position = new Vector2(Camera.main.aspect*temp,temp);
+        gridTransform.position = new Vector2( Camera.main.transform.position.x + Camera.main.aspect*(temp - 0.5f),Camera.main.transform.position.y+(temp - 0.5f));
+        gridMaterial.mainTextureOffset = new Vector2(Camera.main.transform.position.x%(float)1,Camera.main.transform.position.y%(float)1);
     }
 }

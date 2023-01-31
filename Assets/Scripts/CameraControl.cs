@@ -13,6 +13,9 @@ public class CameraControl : MonoBehaviour
 
     private Vector3 defaultPosition;
 
+    private bool isControl = true;
+    public bool IsControl { get { return isControl; } set { isControl = value; } }
+
     #region GUI Property
 
     GUIStyle style = new GUIStyle();
@@ -49,24 +52,28 @@ public class CameraControl : MonoBehaviour
 
         #region Camera Control
 
-        if (Input.GetKey(KeyCode.W)) Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
-        else if (Input.GetKey(KeyCode.A))
-            Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
-        else if (Input.GetKey(KeyCode.S))
-            Camera.main.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
-        else if (Input.GetKey(KeyCode.D))
-            Camera.main.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
-
-        if (Input.GetKey(KeyCode.Q) && Camera.main.orthographicSize > defaultOrthographicSize)
-            Camera.main.orthographicSize -= Time.deltaTime * zDirectionSpeed;
-        else if (Input.GetKey(KeyCode.E)) Camera.main.orthographicSize += Time.deltaTime * zDirectionSpeed;
-        else if (Camera.main.orthographicSize < defaultOrthographicSize)
-            Camera.main.orthographicSize = defaultOrthographicSize;
-
-        if (Input.GetKey(KeyCode.Space))
+        if (isControl)
         {
-            Camera.main.transform.position = defaultPosition;
-            Camera.main.orthographicSize = defaultOrthographicSize;
+            if (Input.GetKey(KeyCode.W))
+                Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
+            else if (Input.GetKey(KeyCode.A))
+                Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
+            else if (Input.GetKey(KeyCode.S))
+                Camera.main.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
+            else if (Input.GetKey(KeyCode.D))
+                Camera.main.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
+
+            if (Input.GetKey(KeyCode.Q) && Camera.main.orthographicSize > defaultOrthographicSize)
+                Camera.main.orthographicSize -= Time.deltaTime * zDirectionSpeed;
+            else if (Input.GetKey(KeyCode.E)) Camera.main.orthographicSize += Time.deltaTime * zDirectionSpeed;
+            else if (Camera.main.orthographicSize < defaultOrthographicSize)
+                Camera.main.orthographicSize = defaultOrthographicSize;
+
+            if (Input.GetKey(KeyCode.Space))
+            {
+                Camera.main.transform.position = defaultPosition;
+                Camera.main.orthographicSize = defaultOrthographicSize;
+            }
         }
 
         #endregion
@@ -97,6 +104,9 @@ public class CameraControl : MonoBehaviour
 
     private void OnGUI()
     {
+        if (!isControl)
+            return;
+        
         if (Camera.main != null)
         {
             GUI.Label(new Rect(rect_pos_x, rect_pos_y, w, h), "WSAD = 상하좌우", style);

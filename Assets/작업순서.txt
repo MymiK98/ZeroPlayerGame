@@ -10,3 +10,6 @@
 
 
 3.그리드에 player표시
+
+
+https://workinprogress.kr/wiki/programming/do-not-feed-the-gc/
