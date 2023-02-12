@@ -11,9 +11,8 @@ GameObject:
   - component: {fileID: 3531462535159271900}
   - component: {fileID: 2229375937459751319}
   - component: {fileID: 6054325523040975249}
-  - component: {fileID: 8588626038888630688}
   m_Layer: 0
-  m_Name: LifeCell
+  m_Name: AroundCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -62,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8e49850baf9e744a18b8f41dcb635dd8, type: 2}
+  - {fileID: 2100000, guid: 071cd4a06cd604180b9dc85a1b406c79, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -84,16 +83,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8588626038888630688
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 905615272751550738}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}

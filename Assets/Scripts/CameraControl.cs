@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 //카메라를 이동시키기
 //카메라를 이용 클릭한 부분이 어떤 그리드인지 체크
@@ -50,54 +51,61 @@ public class CameraControl : MonoBehaviour
         if (Camera.main == null)
             return;
 
+        if (!isControl)
+            return;
+
         #region Camera Control
 
-        if (isControl)
+        if (Input.GetKey(KeyCode.W))
+            Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
+        else if (Input.GetKey(KeyCode.A))
+            Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
+        else if (Input.GetKey(KeyCode.S))
+            Camera.main.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
+        else if (Input.GetKey(KeyCode.D))
+            Camera.main.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
+
+        if (Input.GetKey(KeyCode.Q) && Camera.main.orthographicSize > defaultOrthographicSize)
+            Camera.main.orthographicSize -= Time.deltaTime * zDirectionSpeed;
+        else if (Input.GetKey(KeyCode.E)) Camera.main.orthographicSize += Time.deltaTime * zDirectionSpeed;
+        else if (Camera.main.orthographicSize < defaultOrthographicSize)
+            Camera.main.orthographicSize = defaultOrthographicSize;
+
+        if (Input.GetKey(KeyCode.Space))
         {
-            if (Input.GetKey(KeyCode.W))
-                Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
-            else if (Input.GetKey(KeyCode.A))
-                Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
-            else if (Input.GetKey(KeyCode.S))
-                Camera.main.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
-            else if (Input.GetKey(KeyCode.D))
-                Camera.main.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
-
-            if (Input.GetKey(KeyCode.Q) && Camera.main.orthographicSize > defaultOrthographicSize)
-                Camera.main.orthographicSize -= Time.deltaTime * zDirectionSpeed;
-            else if (Input.GetKey(KeyCode.E)) Camera.main.orthographicSize += Time.deltaTime * zDirectionSpeed;
-            else if (Camera.main.orthographicSize < defaultOrthographicSize)
-                Camera.main.orthographicSize = defaultOrthographicSize;
-
-            if (Input.GetKey(KeyCode.Space))
-            {
-                Camera.main.transform.position = defaultPosition;
-                Camera.main.orthographicSize = defaultOrthographicSize;
-            }
+            Camera.main.transform.position = defaultPosition;
+            Camera.main.orthographicSize = defaultOrthographicSize;
         }
 
         #endregion
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
-            RaycastHit rayHit = new RaycastHit();
-            if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out rayHit,
-                    Mathf.Abs(Camera.main.transform.position.z)))
+#if UNITY_ANDROID
+                if (!EventSystem.current.IsPointerOverGameObject(0))
+#else
+            if (!EventSystem.current.IsPointerOverGameObject())
+#endif
             {
-                Vector3 cameraPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                GameObject selectCell = ObjectPoolManage.Instance.PopObject("LifeCell", null);
-                selectCell.transform.position = new Vector3(Mathf.FloorToInt(cameraPoint.x) + .5f,
-                    Mathf.FloorToInt(cameraPoint.y) + .5f, 0);
-                Message.Send(new Msg_GroundBatchCell(Mathf.FloorToInt(cameraPoint.x), Mathf.FloorToInt(cameraPoint.y),
-                    selectCell, Msg_GroundBatchCell.eGroundTouchState.Add));
-            }
-            else
-            {
-                Message.Send(new Msg_GroundBatchCell(
-                    Mathf.FloorToInt(rayHit.collider.gameObject.transform.position.x - .5f),
-                    Mathf.FloorToInt(rayHit.collider.gameObject.transform.position.y - .5f), null,
-                    Msg_GroundBatchCell.eGroundTouchState.Delete));
-                Destroy(rayHit.collider.gameObject);
+                RaycastHit rayHit = new RaycastHit();
+                if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out rayHit,
+                        Mathf.Abs(Camera.main.transform.position.z)))
+                {
+                    Vector3 cameraPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    GameObject selectCell = ObjectPoolManage.Instance.PopObject("LifeCell", null);
+                    selectCell.transform.position = new Vector3(Mathf.FloorToInt(cameraPoint.x) + .5f,
+                        Mathf.FloorToInt(cameraPoint.y) + .5f, 0);
+                    Message.Send(new Msg_GroundBatchCell(selectCell.transform.position.x,
+                        selectCell.transform.position.y,
+                        selectCell, Msg_GroundBatchCell.eGroundTouchState.Add));
+                }
+                else
+                {
+                    Message.Send(new Msg_GroundBatchCell(rayHit.collider.gameObject.transform.position.x,
+                        rayHit.collider.gameObject.transform.position.y, null,
+                        Msg_GroundBatchCell.eGroundTouchState.Delete));
+                    ObjectPoolManage.Instance.PushObject("LifeCell", rayHit.collider.gameObject);
+                }
             }
         }
     }
