@@ -758,7 +758,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   objectList:
   - objectResourcePath: LifeCell
-    objectLoadCount: 1000
+    objectLoadCount: 3000
   - objectResourcePath: AroundCell
     objectLoadCount: 1000
 --- !u!4 &489403985

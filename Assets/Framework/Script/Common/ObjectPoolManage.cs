@@ -84,7 +84,7 @@ public class ObjectPoolManage : MonoSingleton<ObjectPoolManage>
     {
         if (objectItemList.ContainsKey(popObjectPath))
         {
-            if (objectItemList[popObjectPath].poolList != null && objectItemList[popObjectPath].poolList.Count > 0)
+            if (objectItemList[popObjectPath].poolList != null)
             {
                 if (objectItemList[popObjectPath].pushList == null)
                     objectItemList[popObjectPath].pushList = new List<GameObject>();
@@ -92,7 +92,7 @@ public class ObjectPoolManage : MonoSingleton<ObjectPoolManage>
                 GameObject temp = null;
                 if (objectItemList[popObjectPath].poolList.Count <= 0)
                 {
-                    temp = Instantiate(objectItemList[popObjectPath].itemObject,Vector3.zero, Quaternion.identity, objectItemList[popObjectPath].foldObject);
+                    temp = Instantiate(objectItemList[popObjectPath].itemObject,Vector3.zero, Quaternion.identity, popObjecParent);
                     temp.name = popObjectPath + "_" + (objectItemList[popObjectPath].pushList.Count+1);
                     
                     objectItemList[popObjectPath].pushList.Add(temp);
@@ -103,10 +103,11 @@ public class ObjectPoolManage : MonoSingleton<ObjectPoolManage>
                     
                     objectItemList[popObjectPath].poolList.RemoveAt(0);
                     objectItemList[popObjectPath].pushList.Add(temp);
+                    
+                    temp.transform.SetParent(popObjecParent);
                 }
                 
                 temp.SetActive(true);
-                temp.transform.SetParent(popObjecParent);
 
                 return temp;
             }

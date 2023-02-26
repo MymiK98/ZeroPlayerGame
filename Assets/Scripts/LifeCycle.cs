@@ -399,6 +399,61 @@ public class LifeCycle : MonoBehaviour
         {
             AddCellDic(((float) tempNextCell[i].listIdx % 2 == 0 ? +1 : -1) * (((uLongBit + 1) * ((float) tempNextCell[i].listIdx % 2 == 0 ? tempNextCell[i].listIdx : tempNextCell[i].listIdx - 1)) + tempNextCell[i].ulongBit + .5f), tempNextCell[i].dicKey);
         }
+
+        cameraControl.SelectRectCamera(SelectRectProcess());
+    }
+
+    CameraControl.SelectRect SelectRectProcess()
+    {
+        CameraControl.SelectRect dataRect = new CameraControl.SelectRect();
+        foreach (var data in currentCellDic)
+        {
+            if (dataRect.up < data.Key) dataRect.up = data.Key;
+            else if (dataRect.down > data.Key) dataRect.down = data.Key;
+
+            if (data.Value.Count >= 2)
+            {
+                //짝수
+                if ((data.Value.Count - 1) % 2 == 0)
+                {
+                    if (dataRect.right < RepeatBitProcess(data.Value.Count - 1)) dataRect.right = RepeatBitProcess(data.Value.Count - 1);
+                    else if (dataRect.left > RepeatBitProcess(data.Value.Count - 2)) dataRect.left = RepeatBitProcess(data.Value.Count - 2);
+                }
+                //홀수
+                else
+                {
+                    if (dataRect.right < RepeatBitProcess(data.Value.Count - 2)) dataRect.right = RepeatBitProcess(data.Value.Count - 2);
+                    else if (dataRect.left > RepeatBitProcess(data.Value.Count - 1)) dataRect.left = RepeatBitProcess(data.Value.Count - 1);
+                }
+            }
+            else if (data.Value.Count == 1)
+            {
+                if (dataRect.right < RepeatBitProcess(data.Value.Count - 1)) dataRect.right = RepeatBitProcess(data.Value.Count - 1);
+                else if (dataRect.left > 0) dataRect.left = 0;
+            }
+
+            float RepeatBitProcess(int idx)
+            {
+                if (data.Value[idx] == 0)
+                {
+                    if (idx-2 > 0) return RepeatBitProcess(idx - 2);
+                    else return 0;
+                }
+                else
+                {
+                    for (int i = uLongBit; i >= 0; i--)
+                    {
+                        if (EqualBit(data.Value[idx],(ulong) 1 << i))
+                            return ((float) idx % 2 == 0 ? +1 : -1) * (((uLongBit + 1) * ((float) idx % 2 == 0 ? idx : idx - 1)) + i + .5f);
+                    }
+                    
+                    if (idx-2 > 0) return RepeatBitProcess(idx - 2);
+                    else return 0;
+                }
+            }
+        }
+
+        return dataRect;
     }
 
     public void AroundCellTestFrame()

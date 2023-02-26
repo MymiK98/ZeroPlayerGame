@@ -17,6 +17,8 @@ public class CameraControl : MonoBehaviour
     private bool isControl = true;
     public bool IsControl { get { return isControl; } set { isControl = value; } }
 
+    private Camera mainCamera;
+    
     #region GUI Property
 
     GUIStyle style = new GUIStyle();
@@ -37,18 +39,20 @@ public class CameraControl : MonoBehaviour
 
         #endregion
 
-        if (Camera.main != null)
+        mainCamera = Camera.main;
+
+        if (mainCamera != null)
         {
-            defaultPosition = Camera.main.transform.position;
-            Camera.main.orthographic = true;
-            Camera.main.orthographicSize = defaultOrthographicSize;
-            Camera.main.aspect = 1;
+            defaultPosition = mainCamera.transform.position;
+            mainCamera.orthographic = true;
+            mainCamera.orthographicSize = defaultOrthographicSize;
+            mainCamera.aspect = 1;
         }
     }
 
     private void Update()
     {
-        if (Camera.main == null)
+        if (mainCamera == null)
             return;
 
         if (!isControl)
@@ -57,24 +61,24 @@ public class CameraControl : MonoBehaviour
         #region Camera Control
 
         if (Input.GetKey(KeyCode.W))
-            Camera.main.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
+            mainCamera.transform.position += Vector3.up * Time.deltaTime * fourDirectionSpeed;
         else if (Input.GetKey(KeyCode.A))
-            Camera.main.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
+            mainCamera.transform.position += Vector3.left * Time.deltaTime * fourDirectionSpeed;
         else if (Input.GetKey(KeyCode.S))
-            Camera.main.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
+            mainCamera.transform.position += Vector3.down * Time.deltaTime * fourDirectionSpeed;
         else if (Input.GetKey(KeyCode.D))
-            Camera.main.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
+            mainCamera.transform.position += Vector3.right * Time.deltaTime * fourDirectionSpeed;
 
-        if (Input.GetKey(KeyCode.Q) && Camera.main.orthographicSize > defaultOrthographicSize)
-            Camera.main.orthographicSize -= Time.deltaTime * zDirectionSpeed;
-        else if (Input.GetKey(KeyCode.E)) Camera.main.orthographicSize += Time.deltaTime * zDirectionSpeed;
-        else if (Camera.main.orthographicSize < defaultOrthographicSize)
-            Camera.main.orthographicSize = defaultOrthographicSize;
+        if (Input.GetKey(KeyCode.Q) && mainCamera.orthographicSize > defaultOrthographicSize)
+            mainCamera.orthographicSize -= Time.deltaTime * zDirectionSpeed;
+        else if (Input.GetKey(KeyCode.E)) mainCamera.orthographicSize += Time.deltaTime * zDirectionSpeed;
+        else if (mainCamera.orthographicSize < defaultOrthographicSize)
+            mainCamera.orthographicSize = defaultOrthographicSize;
 
         if (Input.GetKey(KeyCode.Space))
         {
-            Camera.main.transform.position = defaultPosition;
-            Camera.main.orthographicSize = defaultOrthographicSize;
+            mainCamera.transform.position = defaultPosition;
+            mainCamera.orthographicSize = defaultOrthographicSize;
         }
 
         #endregion
@@ -88,10 +92,10 @@ public class CameraControl : MonoBehaviour
 #endif
             {
                 RaycastHit rayHit = new RaycastHit();
-                if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out rayHit,
-                        Mathf.Abs(Camera.main.transform.position.z)))
+                if (!Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out rayHit,
+                        Mathf.Abs(mainCamera.transform.position.z)))
                 {
-                    Vector3 cameraPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    Vector3 cameraPoint = mainCamera.ScreenToWorldPoint(Input.mousePosition);
                     GameObject selectCell = ObjectPoolManage.Instance.PopObject("LifeCell", null);
                     selectCell.transform.position = new Vector3(Mathf.FloorToInt(cameraPoint.x) + .5f,
                         Mathf.FloorToInt(cameraPoint.y) + .5f, 0);
@@ -110,12 +114,38 @@ public class CameraControl : MonoBehaviour
         }
     }
 
+    public struct SelectRect
+    {
+        public float up;
+        public float down;
+        public float right;
+        public float left;
+    }
+    
+    /// <summary>
+    /// ㅌㅡㄱ정 사이즈로 카메라 위치 및 확재 변경
+    /// </summary>
+    public void SelectRectCamera(SelectRect selectRect)
+    {
+        float xDis =  Mathf.Abs(selectRect.right - selectRect.left) * 0.5f;
+        float yDis = Mathf.Abs(selectRect.up - selectRect.down) * 0.5f;
+
+        Vector3 tempPos = new Vector3();
+        tempPos.z = mainCamera.transform.position.z;
+        tempPos.x = selectRect.right >= selectRect.left ? selectRect.right - xDis : selectRect.left - xDis;
+        tempPos.y = selectRect.up >= selectRect.down ? selectRect.up - yDis : selectRect.down - yDis;
+        
+        mainCamera.transform.position = tempPos;
+
+        mainCamera.orthographicSize = xDis > yDis? xDis: yDis;
+    }
+
     private void OnGUI()
     {
         if (!isControl)
             return;
         
-        if (Camera.main != null)
+        if (mainCamera != null)
         {
             GUI.Label(new Rect(rect_pos_x, rect_pos_y, w, h), "WSAD = 상하좌우", style);
             GUI.Label(new Rect(rect_pos_x, rect_pos_y + h * 1, w, h), "QE = 앞뒤", style);
